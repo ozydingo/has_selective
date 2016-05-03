@@ -1,33 +1,11 @@
 # A SelfishAssociation::Association is the main engine behind generating SelfishAssociations.
 # They are primarily defined using the has_one_selfish, has_many_selfish methods.
-# Similar to ActiveRecord Associations, they require a name, and a model. They can
-# also take an optional scope. Like ActiveRecord Associations, this scope can take
-# an argument that, in instance context, will take the instance value. The key feature
-# of SelfishAssociations is that in Relation context (e.g. for joins), the argument
-# will represent the model's table. This allows you to define an association such as
+# But if you want to debug and explor, you can initailize a SelfishAssociation::Association
+# easily with a name and a model (class), options scope and other options.
 #
-#   has_one :same_language_transcript, ->(video){ where language_id: video.language_id }, class_name: "Transcript"
+#   assoc = SelfishAssociations::Association.new(:native_transcript, Video, ->(vid){where language_id: vid.language_id}, class_name: "Transcript")
 #
-# that will correctly work in a joins: Video.joins(same_language_transcript)
-#
-#   Video.joins(:same_language_transcript).to_sql
-#   # => "SELECT * FROM videos LEFT JOIN transcripts ON transcripts.video_id = videos.id AND transcripts.language_id = videos.langauge_id"
-#
-# Because of this approach, you can in fact leave off the foreign_key constaint and
-# the internal engine will not constrain the query on transcripts to have video_id
-# matching the caller's id
-#
-# has_one :any_same_language_transcript, ->(video){ where language_id: video.language_id }, class_name: "Transcript", foreign_key: false
-# 
-#   Video.joins(:same_language_transcript).to_sql
-#   # => "SELECT * FROM videos LEFT JOIN transcripts ON transcripts.language_id = videos.langauge_id"
-#
-# This ability is most useful when you have other identifying constraints that for
-# whatever reason are not defined as an ActiveRecord Association, e.g.:
-#   has_one :any_same_language_transcript, ->(video){ where external_id: video.external_id, language_id: video.language_id }, class_name: "Transcript", foreign_key: false
-# Of course, in this case for example, you may want to consider adding more standard
-# assoication by adding video_id to the transcripts table. But the power is yours.
-
+# Use the :joins, :find, :create, and :matches methods to play!
 
 module SelfishAssociations
   class Association

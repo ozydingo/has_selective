@@ -1,3 +1,6 @@
+# Extends ActiveRecord::Base by adding a has_one_selfish (and, eventually, has_many_selfish)
+# class method to define SelfishAssociations.
+
 module SelfishAssociations
 
   module SelfishAssociationMethods
