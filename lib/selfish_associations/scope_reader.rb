@@ -20,7 +20,8 @@ module SelfishAssociations
     end
 
     def read(scope)
-      instance_exec(@traverser, &scope)
+      args = scope.arity == 0 ? [] : [@traverser]
+      instance_exec(*args, &scope)
     end
 
     def where(conditions)
