@@ -38,14 +38,10 @@ module SelfishAssociations
       @reader.read(scope)
     end
 
-    def joins
+    def join
       conditions = arelize_conditions(@reader.conditions_for_find)
       arel_join = @model.arel_table.join(foreign_class.arel_table).on(conditions).join_sources
       @model.joins(joins_for_find).joins(arel_join).merge(foreign_class.all)
-    end
-
-    def find(instance)
-      foreign_class.find_by(instance_find_conditions(instance))
     end
 
     def create(instance)
