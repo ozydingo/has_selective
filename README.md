@@ -1,7 +1,7 @@
 # selfish_associations
-## Not ready yet. Do not use.
-
 ### Create ActiveRecord-like associations with self-awareness
+
+#### Alpha version. Use at your own risk.
 
 SelfishAssociations are very similar to ActiveRecord Associations, with one key [added feature](#key-feature).
 
