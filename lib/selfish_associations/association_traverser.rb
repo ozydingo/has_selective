@@ -9,8 +9,8 @@
 # t.bar.baz.id
 # # => Arel::Attribute(table: "bazs", field: "id")
 #
-# As a Traverser gets iterated accross assocaitions, it collects every model that
-# it has seen.  You can then call :associations! to fetch these assocaitions.
+# As a Traverser gets iterated accross associations, it collects every model that
+# it has seen.  You can then call :associations! to fetch these associations.
 #
 # e.g., continuing from above
 # # t.associations!
