@@ -71,6 +71,10 @@ module SelfishAssociations
         @path << method
         @klass = @klass.reflect_on_association(method).klass
         return self
+      elsif @klass.selfish_associations[method].present?
+        @path << method
+        @klass = @klass.selfish_associations[method].foreign_class
+        return self
       else
         message = "No association or field named #{method} found for class #{@klass}"
         reset!

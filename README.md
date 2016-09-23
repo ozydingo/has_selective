@@ -3,24 +3,19 @@
 
 #### Alpha version. Use at your own risk.
 
-SelfishAssociations are very similar to ActiveRecord Associations, with one key [added feature](#key-feature).
+SelfishAssociations are very similar to ActiveRecord Associations, with one key [added feature](#key-feature): it allows you to pass an instance into the scope while still being able to use the association for a joins.
 
-ActiveRecord allows you to scope associations, and has some limited support for passing in the self instance to that scope:
+ActiveRecord allows you to scope associations, but defining scopes that depend on the instance is not well supported. You *can* do it:
 
-```
+```ruby
 class Video
-  has_one :native_transcript, ->(vid){ where language_id: vid.language_id }, class_name: "Transcript"
+  has_one :native_transcript, ->(video){ where language_id: video.language_id }, class_name: "Transcript"
 end
-
-video = Video.first
-# => #<Video id: 1, language_id: 1>
-video.native_transcript
-# => #<Transcript id: 1, video_id: 1, language_id: 1>
 ```
 
-However because `language_id` is written as an instance method of `vid`, this cannot be used for a `joins`:
+However because `language_id` is an instance method of `video`, this cannot be used for a `joins`:
 
-```
+```ruby
 Video.joins(:native_transcript)
 # NoMethodError: undefined method `langauge_id' for #<ActiveRecord::Associations::JoinDependency::JoinAssociation:0x007f7f623dc640>
 ```
@@ -29,9 +24,9 @@ SelfishAssociations covers this gap by interpreting the scope correctly for both
 
 <a name="key-feature" />
 
-```
+```ruby
 class Video
-  has_one_selfish :native_transcript, ->(vid){ where language_id: vid.language_id }, class_name: "Transcript"
+  has_one_selfish :native_transcript, ->(video){ where language_id: video.language_id }, class_name: "Transcript"
 end
 
 video = Video.first
@@ -44,10 +39,10 @@ Video.joins(:native_transcript).to_sql
 
 You can specify (ActiveRecord) associations of the self model inside the scope too, and SelfishAssociations will generate the correct intermediate joins:
 
-```
+```ruby
 class Video
   belongs_to :language
-  has_one_selfish :native_transcript, ->(vid){ where language_name: vid.language.name }, class_name: "Transcript"
+  has_one_selfish :native_transcript, ->(video){ where language_name: video.language.name }, class_name: "Transcript"
 end
 
 Video.joins(:native_transcript).to_sql
@@ -56,9 +51,9 @@ Video.first.native_transcript
 # => <Transcript, id: 1, video_id: 1, language_name: "English">
 ```
 
-This is safe to missing associations; you do not have to litter your associations with `try!`s:
+This is safe to missing associations so you don't have to worry about `language.name` complaining with ``NoMethodError: undefined method `name' for nil:NilClass``
 
-```
+```ruby
 video = Video.first
 # => <#Video id: 1, language_id: nil>
 video.language
@@ -69,7 +64,7 @@ video.native_transcript
 
 Because of this approach to associations, you can in fact define an association that does NOT require a foreign key / belongs_to inverse:
 
-```
+```ruby
 class Video
   has_one_selfish :native_transcript, ->(vid){ where external_id: vid.external_id, language_id: vid.language_id }, class_name: "Transcript", foreign_key: false
 end
