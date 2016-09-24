@@ -54,14 +54,11 @@ module SelfishAssociations
       merge ? PathMerger.new(@associations).merge : @associations
     end
 
-    # Method Missing pattern (reluctantly).
-    # Really we could initialize anew at each node and pre-define all methods
-    # But this actually seems more lightweight.
-    # Intercept any method to check if it is an association or a column
+    # Check if method is an association or a column
     # If Association, store current node and iterate to the association.
     # If it is a column, return an Arel::Node representing that value
     # Else, raise NoMethodError
-    def method_missing(method, *args)
+    def send(method, *args)
       if @klass.column_names.include?(method.to_s)
         @associations << @path if @path.present?
         node = @klass.arel_table[method]
@@ -80,6 +77,13 @@ module SelfishAssociations
         reset!
         ::Kernel.raise ::NoMethodError, message
       end
+    end
+
+    # Method Missing pattern (reluctantly).
+    # Really we could initialize a new at each node and pre-define all methods
+    # But this actually seems more lightweight.
+    def method_missing(method, *args)
+      send(method, *args)
     end
   end
 end
