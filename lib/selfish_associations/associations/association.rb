@@ -38,6 +38,10 @@ module SelfishAssociations
       foreign_class.where(instance_find_conditions(instance))
     end
 
+    def initialize_for(instance)
+      foreign_class.new(instance_create_attributes(instance))
+    end
+
     def create_for(instance)
       foreign_class.create(instance_create_attributes(instance))
     end
