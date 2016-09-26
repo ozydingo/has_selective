@@ -13,10 +13,12 @@ module SelfishAssociations
       options = options.symbolize_keys
       @name = name.to_s
       @model = model
-      @scope = scope
       @foreign_class_name = (options[:class_name] || name.to_s.classify).to_s
       @foreign_key = options[:foreign_key] == false ? false : (options[:foreign_key] || @model.name.foreign_key).to_sym
-      @foreign_key_scope = @foreign_key.present? ? foreign_key_scope : nil
+      @scopes = []
+
+      add_scope(scope) if scope.present?
+      add_scope(foreign_key_scope) if @foreign_key.present?
       validate
     end
 
@@ -48,9 +50,12 @@ module SelfishAssociations
 
     private
 
+    def add_scope(scope)
+      @scopes << scope
+    end
+
     def apply_scopes(reader)
-      reader.read(@scope) if @scope.present?
-      reader.read(@foreign_key_scope) if @foreign_key.present?
+      @scopes.each{|scope| reader.read(scope) }
       return reader
     end
 
@@ -115,9 +120,9 @@ module SelfishAssociations
     end
 
     def validate
-      if @scope.present?
-        @scope.is_a?(Proc) or raise SelfishAssociations::SelfishException, "Scope must be a Proc"
-        @scope.arity == 0 || @scope.arity == 1 or raise SelfishAssociations::SelfishException, "Scope must have arity of 0 or 1"
+      @scopes.each do |scope|
+        scope.is_a?(Proc) or raise SelfishAssociations::SelfishException, "Scope must be a Proc"
+        scope.arity == 0 || scope.arity == 1 or raise SelfishAssociations::SelfishException, "Scope must have arity of 0 or 1"
       end
       @model.is_a?(Class) && @model < ActiveRecord::Base or raise SelfishAssociations::SelfishException, "Tried to define a SelfishAssociation for an invalid object (#{@model})"
     end
