@@ -73,6 +73,10 @@ module SelfishAssociations
       # cannot use if instance contains unpersisted changes
     end
 
+    def instance_create_attributes(instance)
+      read_instance_create_attributes(instance)
+    end
+
     def relation_reader
       @relation_reader ||= apply_scopes(SelfishAssociations::ScopeReaders::Relation.new(@model))
     end
