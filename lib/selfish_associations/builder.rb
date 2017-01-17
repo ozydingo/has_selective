@@ -11,7 +11,7 @@ module SelfishAssociations
 
     def add_association(name, assoc)
       initialize_methods_class
-      @model.selfish_associations[name] = assoc
+      @model.selfish_associations = @model.selfish_associations.merge(name => assoc)
 
       @model::SelfishAssociationMethods.class_eval do
         define_method(name) do |reload = false|
